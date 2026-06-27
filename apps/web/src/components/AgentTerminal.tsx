@@ -17,7 +17,7 @@ export default function AgentTerminal({ conversationId }: { conversationId: stri
 
   useEffect(() => {
     // Connect to versioned WebSocket stream
-    const socket = new WebSocket("wss://api.qevn.workforce/v1/stream");
+    const socket = new WebSocket("wss://gateway-production-4848.up.railway.app/api/v1/stream");
     let heartbeat: NodeJS.Timeout;
 
     socket.onopen = () => {
