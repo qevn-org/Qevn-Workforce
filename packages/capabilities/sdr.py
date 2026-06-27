@@ -94,12 +94,41 @@ class SDROutreachCapability(BaseCapability):
             raise RuntimeError(f"HubSpot syncing failed: {res_crm['error']}")
             
         # 3. Threaded Gmail outbound delivery
+        import os
+        email_body = f"Hi {validated_inputs.decision_maker},\nWe identified your business scaling. Let's sync."
+        
+        openai_key = os.getenv("OPENAI_API_KEY")
+        anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+        
+        if openai_key or anthropic_key:
+            try:
+                prompt = (
+                    f"Write a short, professional, personalized cold sales outreach email to {validated_inputs.decision_maker} "
+                    f"who is at company {validated_inputs.company}.\n"
+                    f"The goal of the email is to invite them to sync and qualify their business requirements.\n"
+                    f"Return ONLY the email body content, without subject line, signature placeholder, or greeting placeholder."
+                )
+                if openai_key:
+                    from langchain_openai import ChatOpenAI
+                    llm = ChatOpenAI(model="gpt-4o", temperature=0.7)
+                else:
+                    from langchain_anthropic import ChatAnthropic
+                    llm = ChatAnthropic(model_name="claude-3-5-sonnet-20240620", temperature=0.7)
+                
+                resp = llm.invoke(prompt)
+                email_body = resp.content
+            except Exception as e:
+                import logging
+                logger = logging.getLogger("SDROutreachCapability")
+                logger.warning(f"Failed to generate LLM email body, using fallback: {str(e)}")
+
         gmail = ToolRegistry.get_tool("GmailTool", credentials=credentials.get("GmailTool", {"token": "mock"}))
         res_mail = gmail.run({
             "recipient": validated_inputs.contact_email,
             "subject": f"Qualifying {validated_inputs.company} Outbound Campaign",
-            "body": f"Hi {validated_inputs.decision_maker},\nWe identified your business scaling. Let's sync."
+            "body": email_body
         })
+
         
         if res_mail["status"] == "failed":
             raise RuntimeError(f"Gmail send failed: {res_mail['error']}")
