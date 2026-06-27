@@ -12,6 +12,12 @@ CREATE TABLE IF NOT EXISTS organizations (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Seed default system organization
+INSERT INTO organizations (id, name, slug)
+VALUES ('00000000-0000-0000-0000-000000000000', 'System Default Organization', 'system-default-org')
+ON CONFLICT (id) DO NOTHING;
+
+
 -- Roles & Permissions
 CREATE TABLE IF NOT EXISTS roles (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

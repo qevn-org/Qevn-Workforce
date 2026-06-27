@@ -30,7 +30,7 @@ ON CONFLICT (id) DO UPDATE SET
 -- 2. Seed Employee Template Configurations
 INSERT INTO employees (id, organization_id, name, description, role_title, department, system_prompt, working_hours, timezone, escalation_rules, approval_rules)
 VALUES (
-    'employee-sdr-001',
+    '00000000-0000-0000-0000-000000000001',
     '00000000-0000-0000-0000-000000000000', -- Default system org
     'Alex Outbound',
     'AI Outbound Sales Representative qualifying leads and booking meetings.',
@@ -53,14 +53,15 @@ INSERT INTO employee_capabilities (id, employee_id, capability_id, config)
 VALUES 
 (
     uuid_generate_v4(),
-    'employee-sdr-001',
+    '00000000-0000-0000-0000-000000000001',
     'sdr_research_v1',
     '{"search_depth": "deep"}'::jsonb
 ),
 (
     uuid_generate_v4(),
-    'employee-sdr-001',
+    '00000000-0000-0000-0000-000000000001',
     'sdr_outreach_v1',
     '{"crm_provider": "hubspot", "threading": true}'::jsonb
 )
 ON CONFLICT (employee_id, capability_id) DO NOTHING;
+
