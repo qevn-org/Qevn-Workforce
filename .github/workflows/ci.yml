@@ -1,0 +1,35 @@
+name: QEVN CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Linting dependencies
+        run: |
+          pip install flake8 black mypy safety
+
+      - name: Check code formatting (Black)
+        run: |
+          black --check apps/ packages/
+
+      - name: Lint code style (flake8)
+        run: |
+          flake8 apps/ packages/ --max-line-length=120 --ignore=E203,W503
+
+      - name: Security Check package dependencies
+        run: |
+          safety check --ignore 51668 # Example override for known false-positives

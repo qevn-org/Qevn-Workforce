@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qevn-tools"
+version = "0.1.0"
+description = "Tool Registry and Integrations for QEVN Workforce"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.0.0",
+    "tenacity>=8.0.0",
+    "qevn-shared",
+]

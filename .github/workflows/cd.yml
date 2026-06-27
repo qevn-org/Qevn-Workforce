@@ -1,0 +1,55 @@
+name: QEVN CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to AWS ECR
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Build and Push Gateway Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: apps/gateway/Dockerfile
+          push: true
+          tags: ${{ secrets.ECR_REGISTRY }}/qevn-gateway:${{ github.sha }}
+
+      - name: Build and Push Orchestrator Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: apps/orchestrator/Dockerfile
+          push: true
+          tags: ${{ secrets.ECR_REGISTRY }}/qevn-orchestrator:${{ github.sha }}
+
+      - name: Configure Kubeconfig credentials
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" > kubeconfig.yaml
+          export KUBECONFIG=kubeconfig.yaml
+
+      - name: Update Deployment Tags and Rollout
+        run: |
+          # Inject target images and apply
+          kubectl set image deployment/qevn-gateway gateway=${{ secrets.ECR_REGISTRY }}/qevn-gateway:${{ github.sha }} -n qevn
+          kubectl set image deployment/qevn-orchestrator orchestrator=${{ secrets.ECR_REGISTRY }}/qevn-orchestrator:${{ github.sha }} -n qevn
+          
+          # Force rolling-update status check
+          kubectl rollout status deployment/qevn-gateway -n qevn
+          kubectl rollout status deployment/qevn-orchestrator -n qevn

@@ -1,0 +1,52 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: gateway-policy
+  namespace: qevn
+spec:
+  podSelector:
+    matchLabels:
+      app: qevn-gateway
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector: {} # Allow from Ingress controller namespace
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: qevn-orchestrator
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0 # Allow outbound auth requests (Clerk, Auth0)
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: orchestrator-policy
+  namespace: qevn
+spec:
+  podSelector:
+    matchLabels:
+      app: qevn-orchestrator
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: qevn-gateway
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: qevn-redis
+        - podSelector:
+            matchLabels:
+              app: qevn-postgres
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0 # Allow outbound SaaS tools (Gmail, HubSpot)

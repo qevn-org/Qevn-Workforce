@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qevn-orchestrator
+  namespace: qevn
+  labels:
+    app: qevn-orchestrator
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: qevn-orchestrator
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: qevn-orchestrator
+    spec:
+      containers:
+        - name: orchestrator
+          image: qevn-orchestrator:latest
+          ports:
+            - containerPort: 8001
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 15"]
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: qevn-secrets
+                  key: database-url
+            - name: REDIS_URL
+              value: "redis://qevn-redis:6379/0"
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1024Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qevn-orchestrator
+  namespace: qevn
+spec:
+  ports:
+    - port: 8001
+      targetPort: 8001
+  selector:
+    app: qevn-orchestrator
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: qevn-orchestrator-hpa
+  namespace: qevn
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: qevn-orchestrator
+  minReplicas: 2
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

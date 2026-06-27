@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qevn-gateway
+  namespace: qevn
+  labels:
+    app: qevn-gateway
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: qevn-gateway
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: qevn-gateway
+    spec:
+      containers:
+        - name: gateway
+          image: qevn-gateway:latest
+          ports:
+            - containerPort: 8000
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 15"]
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: qevn-secrets
+                  key: database-url
+            - name: REDIS_URL
+              value: "redis://qevn-redis:6379/0"
+            - name: ORCHESTRATOR_URL
+              value: "http://qevn-orchestrator:8001"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qevn-gateway
+  namespace: qevn
+spec:
+  ports:
+    - port: 8000
+      targetPort: 8000
+  selector:
+    app: qevn-gateway
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: qevn-gateway-hpa
+  namespace: qevn
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: qevn-gateway
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
