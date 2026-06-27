@@ -224,7 +224,7 @@ export default function EmployeeBuilderPage() {
           <div className="p-4 rounded-lg bg-card border border-border flex flex-col gap-3">
             <h2 className="text-xs font-semibold uppercase tracking-wider text-foreground/50">Active Employees</h2>
             <div className="flex flex-col gap-2">
-              {employees.map((emp) => (
+              {employees.map((emp: any) => (
                 <button
                   key={emp.id}
                   onClick={() => {
@@ -377,7 +377,7 @@ export default function EmployeeBuilderPage() {
                         Composed Capabilities ({selectedEmployee.capabilities.length})
                       </h3>
                       <div className="flex flex-col gap-2">
-                        {selectedEmployee.capabilities.map(cap => (
+                        {selectedEmployee.capabilities.map((cap: any) => (
                           <div key={cap.id} className="p-3 bg-secondary/10 rounded border border-border text-xs">
                             <p className="font-semibold text-foreground/90">{cap.name}</p>
                             <p className="text-foreground/50 mt-0.5 text-[10px]">{cap.desc}</p>
@@ -393,7 +393,7 @@ export default function EmployeeBuilderPage() {
                         Workspace Governance Policies
                       </h3>
                       <div className="flex flex-col gap-2">
-                        {selectedEmployee.policies.map(pol => (
+                        {selectedEmployee.policies.map((pol: any) => (
                           <div key={pol.id} className="p-3 bg-secondary/15 rounded border border-border text-xs flex gap-2">
                             <span className="text-warning font-semibold select-none">⚠️</span>
                             <div>
@@ -417,7 +417,7 @@ export default function EmployeeBuilderPage() {
                         Bound Scopes
                       </h3>
                       <div className="p-3 rounded border border-border bg-secondary/10 flex flex-wrap gap-1.5">
-                        {selectedEmployee.permissions.map(perm => (
+                        {selectedEmployee.permissions.map((perm: any) => (
                           <span key={perm} className="px-2 py-0.5 rounded bg-secondary-accent/20 border border-border text-[9px] font-mono text-primary">{perm}</span>
                         ))}
                       </div>
@@ -430,7 +430,7 @@ export default function EmployeeBuilderPage() {
                         Knowledge Bases
                       </h3>
                       <div className="p-3 rounded border border-border bg-secondary/10 flex flex-col gap-1.5 text-xs">
-                        {selectedEmployee.knowledgeSources.map(source => (
+                        {selectedEmployee.knowledgeSources.map((source: any) => (
                           <div key={source} className="flex items-center gap-1.5 text-foreground/75 font-medium">
                             <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
                             {source}
@@ -446,7 +446,7 @@ export default function EmployeeBuilderPage() {
                         Recent Runs
                       </h3>
                       <div className="flex flex-col gap-2">
-                        {selectedEmployee.recentExecutions.map(run => (
+                        {selectedEmployee.recentExecutions.map((run: any) => (
                           <div key={run.id} className="p-2.5 bg-secondary/20 rounded border border-border flex justify-between items-center text-xs">
                             <div className="truncate max-w-[120px]">
                               <p className="font-semibold text-foreground/90 truncate">{run.goal}</p>
