@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel
 
+
 class MemoryEntry(BaseModel):
     organization_id: str
     employee_id: str
@@ -12,22 +13,27 @@ class MemoryEntry(BaseModel):
     content: str
     vector_id: Optional[str] = None
 
+
 class IMemoryProvider(ABC):
     """
     Abstract interface for all Memory OS providers.
     Supports compression, serialization, and tenant-isolated semantic searches.
     """
-    
+
     @abstractmethod
     def store(self, entry: MemoryEntry, ttl: Optional[int] = None) -> bool:
         pass
 
     @abstractmethod
-    def retrieve(self, organization_id: str, employee_id: str, limit: int = 10) -> List[MemoryEntry]:
+    def retrieve(
+        self, organization_id: str, employee_id: str, limit: int = 10
+    ) -> List[MemoryEntry]:
         pass
 
     @abstractmethod
-    def semantic_search(self, organization_id: str, query: str, limit: int = 5) -> List[MemoryEntry]:
+    def semantic_search(
+        self, organization_id: str, query: str, limit: int = 5
+    ) -> List[MemoryEntry]:
         pass
 
     def compress_data(self, data: str) -> str:

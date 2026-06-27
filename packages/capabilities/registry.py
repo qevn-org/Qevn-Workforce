@@ -4,11 +4,13 @@ from packages.capabilities.base import BaseCapability, CapabilityDefinition
 
 logger = logging.getLogger("CapabilityRegistry")
 
+
 class CapabilityRegistry:
     """
     Registry of all dynamic capability plugins installed on the platform.
     Allows dynamic lookup of plugins matching Planner action requests.
     """
+
     _registry: Dict[str, BaseCapability] = {}
 
     @classmethod
@@ -16,7 +18,9 @@ class CapabilityRegistry:
         """Registers a capability instance into the platform runtime registry."""
         cap_id = capability.definition.id
         cls._registry[cap_id] = capability
-        logger.info(f"Successfully registered capability: {capability.definition.name} ({cap_id})")
+        logger.info(
+            f"Successfully registered capability: {capability.definition.name} ({cap_id})"
+        )
 
     @classmethod
     def get_capability(cls, capability_id: str) -> Optional[BaseCapability]:

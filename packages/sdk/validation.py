@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 logger = logging.getLogger("SDKValidation")
 
+
 class ManifestIdentity(BaseModel):
     id: str
     name: str
@@ -11,23 +12,28 @@ class ManifestIdentity(BaseModel):
     description: str
     author: str
 
+
 class ManifestRequirements(BaseModel):
     capabilities: List[Dict[str, str]] = Field(default_factory=list)
     tools: List[Dict[str, str]] = Field(default_factory=list)
     permissions: List[str] = Field(default_factory=list)
 
+
 class PackageManifest(BaseModel):
     manifest_version: str
     type: str  # 'employee' | 'capability' | 'skill'
     identity: ManifestIdentity
-    requirements: ManifestRequirements = Field(default_factory=lambda: ManifestRequirements())
+    requirements: ManifestRequirements = Field(
+        default_factory=lambda: ManifestRequirements()
+    )
+
 
 class SDKValidator:
     """
     Validates QEVN packages manifest schemas and analyzes dependency trees
     to prevent circular dependency references.
     """
-    
+
     @classmethod
     def validate_manifest(cls, manifest_dict: Dict[str, Any]) -> PackageManifest:
         """Validates manifest fields against Pydantic schema rules."""
@@ -37,7 +43,9 @@ class SDKValidator:
             raise ValueError(f"Manifest validation failed: {str(e)}")
 
     @classmethod
-    def check_circular_dependencies(cls, target_id: str, dependency_map: Dict[str, List[str]]) -> bool:
+    def check_circular_dependencies(
+        cls, target_id: str, dependency_map: Dict[str, List[str]]
+    ) -> bool:
         """
         DFS cycle detection checking for circular references in package structures.
         """
@@ -60,7 +68,11 @@ class SDKValidator:
             return False
 
         if dfs(target_id):
-            raise ValueError(f"Circular dependency error detected starting from package: {target_id}")
-            
-        logger.info(f"Dependency graph check completed. No cycles detected for package '{target_id}'.")
+            raise ValueError(
+                f"Circular dependency error detected starting from package: {target_id}"
+            )
+
+        logger.info(
+            f"Dependency graph check completed. No cycles detected for package '{target_id}'."
+        )
         return True

@@ -6,27 +6,33 @@ from packages.tools.src.integrations.slack import SlackTool
 from packages.tools.src.integrations.twilio import TwilioTool
 from packages.tools.src.integrations.calendar import CalendarTool
 
+
 class ToolRegistry:
     """
     Registry of all available SaaS and functional tools in QEVN Workforce.
     Loads and provides tool instances bound to employee integration credentials.
     """
+
     _registry: Dict[str, Type[BaseTool]] = {
         "GmailTool": GmailTool,
         "HubSpotTool": HubSpotTool,
         "SlackTool": SlackTool,
         "TwilioTool": TwilioTool,
-        "CalendarTool": CalendarTool
+        "CalendarTool": CalendarTool,
     }
 
     @classmethod
-    def get_tool(cls, tool_name: str, credentials: Optional[Dict[str, Any]] = None) -> BaseTool:
+    def get_tool(
+        cls, tool_name: str, credentials: Optional[Dict[str, Any]] = None
+    ) -> BaseTool:
         """
         Instantiates and retrieves the requested tool, bound to credentials.
         """
         tool_class = cls._registry.get(tool_name)
         if not tool_class:
-            raise ToolException(f"Tool {tool_name} is not registered in the Tool Registry.")
+            raise ToolException(
+                f"Tool {tool_name} is not registered in the Tool Registry."
+            )
         return tool_class(credentials=credentials)
 
     @classmethod

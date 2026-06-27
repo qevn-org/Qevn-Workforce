@@ -3,6 +3,7 @@ from typing import List, Dict, Any, Optional
 from uuid import UUID
 from datetime import datetime
 
+
 class Organization(BaseModel):
     id: UUID
     name: str
@@ -10,11 +11,13 @@ class Organization(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+
 class Role(BaseModel):
     id: UUID
     name: str
     description: Optional[str] = None
     created_at: datetime
+
 
 class User(BaseModel):
     id: UUID
@@ -27,6 +30,7 @@ class User(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+
 class Employee(BaseModel):
     id: UUID
     organization_id: UUID
@@ -37,13 +41,22 @@ class Employee(BaseModel):
     role_title: Optional[str] = None
     system_prompt: str
     working_hours: Dict[str, Any] = Field(
-        default_factory=lambda: {"start": "09:00", "end": "17:00", "days": [1, 2, 3, 4, 5]}
+        default_factory=lambda: {
+            "start": "09:00",
+            "end": "17:00",
+            "days": [1, 2, 3, 4, 5],
+        }
     )
     timezone: str = "UTC"
-    escalation_rules: Dict[str, Any] = Field(default_factory=lambda: {"on_error": "notify_slack"})
-    approval_rules: Dict[str, Any] = Field(default_factory=lambda: {"require_approval_for": []})
+    escalation_rules: Dict[str, Any] = Field(
+        default_factory=lambda: {"on_error": "notify_slack"}
+    )
+    approval_rules: Dict[str, Any] = Field(
+        default_factory=lambda: {"require_approval_for": []}
+    )
     created_at: datetime
     updated_at: datetime
+
 
 class Conversation(BaseModel):
     id: UUID
@@ -53,6 +66,7 @@ class Conversation(BaseModel):
     status: str = "active"
     created_at: datetime
     updated_at: datetime
+
 
 class Task(BaseModel):
     id: UUID
@@ -66,6 +80,7 @@ class Task(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+
 class ToolCall(BaseModel):
     id: UUID
     workflow_run_id: Optional[UUID] = None
@@ -77,6 +92,7 @@ class ToolCall(BaseModel):
     error_message: Optional[str] = None
     duration_ms: Optional[int] = None
     created_at: datetime
+
 
 class AuditLog(BaseModel):
     id: UUID
