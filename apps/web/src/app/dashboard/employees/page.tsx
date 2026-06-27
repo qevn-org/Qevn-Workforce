@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Save, 
   HelpCircle, 
@@ -21,90 +21,142 @@ import {
   Heart
 } from "lucide-react";
 
+const STATIC_EMPLOYEES = [
+  {
+    id: "emp-sdr-001",
+    name: "Alex SDR Pro",
+    department: "Sales & Outbound",
+    status: "Active",
+    version: "v2.4.1",
+    manifest: {
+      id: "sdr-outbound-pro",
+      type: "employee",
+      version: "2.4.1",
+      description: "Qualifies prospect accounts and schedules meetings.",
+      author: "QEVN Platform Core",
+      license: "MIT License"
+    },
+    stats: {
+      successRate: "94.8%",
+      avgCost: "$0.14",
+      avgLatency: "8.2s",
+      runs: 142
+    },
+    capabilities: [
+      { id: "research_v1", name: "SDR Prospecting Research", desc: "Searches open web registers for decision makers." },
+      { id: "crm_v1", name: "HubSpot CRM Synchronization", desc: "Performs CRM client updates and deal tracking." },
+      { id: "email_v1", name: "Gmail Communication", desc: "Drafts and dispatches personalized outreach campaigns." }
+    ],
+    skills: ["web_search", "hubspot_deal_create", "gmail_send_message"],
+    knowledgeSources: ["SaaS Prospect Directory", "QEVN Standard Q&A Docs"],
+    permissions: ["email:send", "crm:write", "contacts:read"],
+    policies: [
+      { id: "pol-01", name: "Limit Outbound Email Rates", desc: "Max 50 outreach emails sent per active workspace daily." },
+      { id: "pol-02", name: "HubSpot Write Check", desc: "Forbid modifications to accounts marked 'Enterprise Account Manager Owned'." }
+    ],
+    recentExecutions: [
+      { id: "run-sdr-101", goal: "Scan leads from London SaaS companies", status: "Completed", date: "10 mins ago" },
+      { id: "run-sdr-102", goal: "Follow-up schedule request with Bob CTO", status: "Awaiting Approval", date: "1 hour ago" },
+      { id: "run-sdr-103", goal: "HubSpot contact synch: Alice CEO", status: "Completed", date: "4 hours ago" }
+    ]
+  },
+  {
+    id: "emp-recruiter-002",
+    name: "Sarah Recruiter",
+    department: "Human Resources",
+    status: "Active",
+    version: "v1.1.0",
+    manifest: {
+      id: "recruiter-resume-analyst",
+      type: "employee",
+      version: "1.1.0",
+      description: "Extracts profiles from uploaded candidate resumes and matches qualifications.",
+      author: "QEVN HR Services",
+      license: "Proprietary"
+    },
+    stats: {
+      successRate: "98.2%",
+      avgCost: "$0.09",
+      avgLatency: "5.4s",
+      runs: 84
+    },
+    capabilities: [
+      { id: "resume_parse_v1", name: "Resume Parsing & OCR", desc: "Converts resume PDFs into structured candidate profiles." },
+      { id: "email_v1", name: "Gmail Communication", desc: "Drafts interview invites and notifications." }
+    ],
+    skills: ["pdf_ocr", "candidate_scoring", "gmail_send_message"],
+    knowledgeSources: ["Company Job Requirements Catalog"],
+    permissions: ["documents:read", "email:send"],
+    policies: [
+      { id: "pol-rec-01", name: "Confidentiality Filter", desc: "Anonymize candidate PII data fields before vector indexing." }
+    ],
+    recentExecutions: [
+      { id: "run-rec-201", goal: "Evaluate resume: Jane Doe Tech Lead", status: "Completed", date: "3 hours ago" },
+      { id: "run-rec-202", goal: "Dispatched reject notice for applicant 12", status: "Completed", date: "1 day ago" }
+    ]
+  }
+];
+
 export default function EmployeeBuilderPage() {
   const [activeTab, setActiveTab] = useState("inspector"); // 'inspector' | 'builder-general' | 'builder-caps' | 'builder-scopes'
+  const [employees, setEmployees] = useState<any[]>(STATIC_EMPLOYEES);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("emp-sdr-001");
   const [name, setName] = useState("Alex SDR");
   const [prompt, setPrompt] = useState("You qualify incoming sales prospects using CRM details.");
   const [selectedCaps, setSelectedCaps] = useState<string[]>(["research_v1", "email_v1"]);
 
-  const employees = [
-    {
-      id: "emp-sdr-001",
-      name: "Alex SDR Pro",
-      department: "Sales & Outbound",
-      status: "Active",
-      version: "v2.4.1",
-      manifest: {
-        id: "sdr-outbound-pro",
-        type: "employee",
-        version: "2.4.1",
-        description: "Qualifies prospect accounts and schedules meetings.",
-        author: "QEVN Platform Core",
-        license: "MIT License"
-      },
-      stats: {
-        successRate: "94.8%",
-        avgCost: "$0.14",
-        avgLatency: "8.2s",
-        runs: 142
-      },
-      capabilities: [
-        { id: "research_v1", name: "SDR Prospecting Research", desc: "Searches open web registers for decision makers." },
-        { id: "crm_v1", name: "HubSpot CRM Synchronization", desc: "Performs CRM client updates and deal tracking." },
-        { id: "email_v1", name: "Gmail Communication", desc: "Drafts and dispatches personalized outreach campaigns." }
-      ],
-      skills: ["web_search", "hubspot_deal_create", "gmail_send_message"],
-      knowledgeSources: ["SaaS Prospect Directory", "QEVN Standard Q&A Docs"],
-      permissions: ["email:send", "crm:write", "contacts:read"],
-      policies: [
-        { id: "pol-01", name: "Limit Outbound Email Rates", desc: "Max 50 outreach emails sent per active workspace daily." },
-        { id: "pol-02", name: "HubSpot Write Check", desc: "Forbid modifications to accounts marked 'Enterprise Account Manager Owned'." }
-      ],
-      recentExecutions: [
-        { id: "run-sdr-101", goal: "Scan leads from London SaaS companies", status: "Completed", date: "10 mins ago" },
-        { id: "run-sdr-102", goal: "Follow-up schedule request with Bob CTO", status: "Awaiting Approval", date: "1 hour ago" },
-        { id: "run-sdr-103", goal: "HubSpot contact synch: Alice CEO", status: "Completed", date: "4 hours ago" }
-      ]
-    },
-    {
-      id: "emp-recruiter-002",
-      name: "Sarah Recruiter",
-      department: "Human Resources",
-      status: "Active",
-      version: "v1.1.0",
-      manifest: {
-        id: "recruiter-resume-analyst",
-        type: "employee",
-        version: "1.1.0",
-        description: "Extracts profiles from uploaded candidate resumes and matches qualifications.",
-        author: "QEVN HR Services",
-        license: "Proprietary"
-      },
-      stats: {
-        successRate: "98.2%",
-        avgCost: "$0.09",
-        avgLatency: "5.4s",
-        runs: 84
-      },
-      capabilities: [
-        { id: "resume_parse_v1", name: "Resume Parsing & OCR", desc: "Converts resume PDFs into structured candidate profiles." },
-        { id: "email_v1", name: "Gmail Communication", desc: "Drafts interview invites and notifications." }
-      ],
-      skills: ["pdf_ocr", "candidate_scoring", "gmail_send_message"],
-      knowledgeSources: ["Company Job Requirements Catalog"],
-      permissions: ["documents:read", "email:send"],
-      policies: [
-        { id: "pol-rec-01", name: "Confidentiality Filter", desc: "Anonymize candidate PII data fields before vector indexing." }
-      ],
-      recentExecutions: [
-        { id: "run-rec-201", goal: "Evaluate resume: Jane Doe Tech Lead", status: "Completed", date: "3 hours ago" },
-        { id: "run-rec-202", goal: "Dispatched reject notice for applicant 12", status: "Completed", date: "1 day ago" }
-      ]
-    }
-  ];
+  const GATEWAY_URL = "https://gateway-production-4848.up.railway.app";
 
-  const selectedEmployee = employees.find(e => e.id === selectedEmployeeId) || employees[0];
+  useEffect(() => {
+    async function loadEmployees() {
+      try {
+        const response = await fetch(`${GATEWAY_URL}/api/v1/employees`, {
+          headers: {
+            "Authorization": "Bearer mock_jwt"
+          }
+        });
+        const data = await response.json();
+        if (data.success && data.data && data.data.length > 0) {
+          const mapped = data.data.map((emp: any) => ({
+            id: emp.id,
+            name: emp.name,
+            department: emp.department || "Operations",
+            status: "Active",
+            version: "v1.0.0",
+            manifest: {
+              id: emp.id,
+              type: "employee",
+              version: "1.0.0",
+              description: emp.description || "Custom AI workforce employee.",
+              author: "Deployed System",
+              license: "MIT License"
+            },
+            stats: {
+              successRate: "100%",
+              avgCost: "$0.00",
+              avgLatency: "0.0s",
+              runs: 0
+            },
+            capabilities: [
+              { id: "research_v1", name: "SDR Prospecting Research", desc: "Searches open web registers for decision makers." }
+            ],
+            skills: ["web_search"],
+            knowledgeSources: ["Company Directory"],
+            permissions: ["email:send"],
+            policies: [],
+            recentExecutions: []
+          }));
+          setEmployees(mapped);
+          setSelectedEmployeeId(mapped[0].id);
+        }
+      } catch (err) {
+        console.error("Failed to fetch employees from live gateway:", err);
+      }
+    }
+    loadEmployees();
+  }, []);
+
+  const selectedEmployee = employees.find(e => e.id === selectedEmployeeId) || employees[0] || STATIC_EMPLOYEES[0];
 
   const availableCaps = [
     { id: "research_v1", name: "Research Capability", desc: "Allows searching public web records." },
@@ -120,9 +172,35 @@ export default function EmployeeBuilderPage() {
     }
   };
 
-  const handleSave = () => {
-    alert(`Configuration saved successfully! Assigned Capabilities: ${JSON.stringify(selectedCaps)}`);
+  const handleSave = async () => {
+    try {
+      const response = await fetch(`${GATEWAY_URL}/api/v1/employees`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer mock_jwt"
+        },
+        body: JSON.stringify({
+          name: name,
+          system_prompt: prompt,
+          description: "Custom built AI workforce employee.",
+          role_title: "Agent Qualifier",
+          department: "Operations"
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert(`Employee created successfully in Railway database! ID: ${data.data.id}`);
+        window.location.reload();
+      } else {
+        alert(`Failed to save configuration: ${data.detail || "Unknown error"}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to connect to backend gateway. Config saved locally.");
+    }
   };
+
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl">

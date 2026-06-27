@@ -28,6 +28,14 @@ router = APIRouter()
 employee_service = EmployeeService()
 workflow_service = WorkflowService()
 
+@router.get("/employees", response_model=Dict[str, Any])
+def list_employees(current_user: AuthContext = Depends(get_current_user)):
+    try:
+        res = employee_service.list_employees(current_user.org_id)
+        return {"success": True, "data": res}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 # 1. Versioned REST API Paths
 @router.post("/employees", response_model=Dict[str, Any])
 def create_employee(payload: Dict[str, Any], current_user: AuthContext = Depends(get_current_user)):
