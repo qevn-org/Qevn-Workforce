@@ -72,13 +72,15 @@ def install_employee_capabilities(
 
 
 @router.post("/workflows/start", response_model=Dict[str, Any])
-def start_workflow(
+async def start_workflow(
     payload: Dict[str, Any], current_user: AuthContext = Depends(get_current_user)
 ):
     try:
         employee_id = payload.get("employee_id")
         goal = payload.get("goal")
-        run_id = workflow_service.start_workflow(current_user.org_id, employee_id, goal)
+        run_id = await workflow_service.start_workflow(
+            current_user.org_id, employee_id, goal
+        )
         return {"success": True, "data": {"workflow_instance_id": str(run_id)}}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

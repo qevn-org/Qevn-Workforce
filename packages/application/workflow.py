@@ -13,7 +13,7 @@ class WorkflowService:
     and publishes domain events.
     """
 
-    def start_workflow(
+    async def start_workflow(
         self, organization_id: str, employee_id: str, goal: str
     ) -> uuid.UUID:
         # 1. Validation Layer
@@ -21,7 +21,7 @@ class WorkflowService:
             raise ValueError("Validation failed: Target goal description is too short.")
 
         # 2. Invoke Workflow Runtime
-        run_id = WorkflowRuntimeEngine.start_workflow(employee_id, goal)
+        run_id = await WorkflowRuntimeEngine.start_workflow(employee_id, goal)
 
         # 3. Publish domain event
         EventBus.publish(
