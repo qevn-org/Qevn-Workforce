@@ -43,6 +43,27 @@ class WorkflowRuntimeEngine:
 
         cls._active_runs[run_id] = instance
 
+        # 1. Enqueue job to ARQ background worker
+        try:
+            from arq.connections import RedisSettings, create_pool
+            from packages.shared.src.db.client import REDIS_URL
+
+            settings = RedisSettings.from_dsn(REDIS_URL)
+            redis_pool = await create_pool(settings)
+
+            payload = {
+                "task_id": str(run_id),
+                "organization_id": "00000000-0000-0000-0000-000000000000",
+                "employee_id": employee_id,
+                "conversation_id": "default-session",
+                "goal": goal,
+            }
+
+            await redis_pool.enqueue_job("run_orchestration_job", payload)
+            logger.info(f"Workflow enqueued to ARQ background worker. Job ID: {run_id}")
+        except Exception as err:
+            logger.error(f"Failed to enqueue workflow job to ARQ: {str(err)}")
+
         # Publish event
         EventBus.publish(
             "WorkflowStarted",
