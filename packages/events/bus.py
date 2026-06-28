@@ -24,10 +24,9 @@ class EventBus:
             redis = get_redis_session()
             redis.publish("qevn_events", json.dumps(payload_data))
 
-            # Pipe logs specifically to conversation channel if key is present
-            conv_id = payload.get("conversation_id")
-            if conv_id:
-                redis.publish(f"conversation:{conv_id}:logs", json.dumps(payload_data))
+            # Pipe logs specifically to conversation channel
+            conv_id = payload.get("conversation_id") or "default-session"
+            redis.publish(f"conversation:{conv_id}:logs", json.dumps(payload_data))
 
         except Exception as e:
             logger.debug(f"Redis publish failed or connection skipped: {str(e)}")
