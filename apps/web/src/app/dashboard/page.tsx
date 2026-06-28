@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import AgentTerminal from "../../components/AgentTerminal";
+
 import { 
   Users, 
   Play, 
@@ -254,6 +256,12 @@ export default function DashboardPage() {
         </div>
 
       </div>
+
+      {/* Full-Width Agent Terminal Console */}
+      <div className="mt-6 border-t border-border pt-6">
+        <AgentTerminal conversationId="default-session" />
+      </div>
     </div>
   );
 }
+
